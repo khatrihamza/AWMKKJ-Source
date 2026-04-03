@@ -1,0 +1,29 @@
+RewriteEngine On
+
+# Redirect root to login
+RewriteRule ^$ login.php [L]
+
+# Protect index.php - redirect to login if not authenticated
+RewriteCond %{REQUEST_URI} ^/index\.php$
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{HTTP_COOKIE} !PHPSESSID=[^;]+
+RewriteRule ^(.*)$ login.php [L,R=302]
+
+# Block direct access to JSON files
+<Files "*.json">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Security headers
+Header set X-Content-Type-Options nosniff
+Header set X-Frame-Options DENY
+Header set X-XSS-Protection "1; mode=block"
+
+# Custom error pages
+ErrorDocument 404 /error.php
+ErrorDocument 403 /error.php
+ErrorDocument 500 /error.php
+
+# Prevent directory listing
+Options -Indexes
